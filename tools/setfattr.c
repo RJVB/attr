@@ -34,6 +34,22 @@
 
 #include "misc.h"
 
+#ifdef __APPLE__
+    static int lsetxattr (const char *path, const char *name, const void *value, size_t size, int flags)
+    {
+        return setxattr(path, name, value, size, 0, flags|XATTR_SHOWCOMPRESSION|XATTR_NOFOLLOW);
+    }
+    static int lremovexattr (const char *path, const char *name)
+    {
+        return removexattr(path, name, XATTR_SHOWCOMPRESSION|XATTR_NOFOLLOW);
+    }
+
+    #define fsetxattr(fd,n,v,s,f)   fsetxattr((fd),(n),(v),(s),0,(f)|XATTR_SHOWCOMPRESSION)
+    #define setxattr(p,n,v,s,f)     setxattr((p),(n),(v),(s),0,(f)|XATTR_SHOWCOMPRESSION)
+    #define fremovexattr(fd,n)      fremovexattr((fd),(n),XATTR_SHOWCOMPRESSION)
+    #define removexattr(p,n)        removexattr((p),(n),XATTR_SHOWCOMPRESSION)
+#endif
+
 #define CMD_LINE_OPTIONS "n:x:v:h"
 #define CMD_LINE_SPEC1 "{-n name} [-v value] [-h] file..."
 #define CMD_LINE_SPEC2 "{-x name} [-h] file..."
@@ -90,12 +106,20 @@ static const char *xquote(const char *str, const char *quote_chars)
 int do_setxattr(const char *path, const char *name,
 		const void *value, size_t size)
 {
-	return (opt_deref ? setxattr : lsetxattr)(path, name, value, size, 0);
+	if (opt_deref) {
+		return setxattr(path, name, value, size, 0);
+	} else {
+		return lsetxattr(path, name, value, size, 0);
+	}
 }
 
 int do_removexattr(const char *path, const char *name)
 {
-	return (opt_deref ? removexattr : lremovexattr)(path, name);
+	if (opt_deref) {
+		return removexattr(path, name);
+	} else {
+		return lremovexattr(path, name);
+	}
 }
 
 int restore(const char *filename)

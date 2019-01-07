@@ -44,6 +44,40 @@ static const char *secure_name = "security.";
 static const char *trusted_name = "trusted.";
 static const char *xfsroot_name = "xfsroot.";
 
+#ifdef __APPLE__
+    static ssize_t lgetxattr(const char *path, const char *name, void *value, size_t size)
+    {
+        return getxattr(path, name, value, size, 0, XATTR_SHOWCOMPRESSION|XATTR_NOFOLLOW);
+    }
+    static ssize_t _getxattr(const char *path, const char *name, void *value, size_t size)
+    {
+        return getxattr(path, name, value, size, 0, XATTR_SHOWCOMPRESSION);
+    }
+    static int lsetxattr (const char *path, const char *name, const void *value, size_t size, int flags)
+    {
+        return setxattr(path, name, value, size, 0, flags|XATTR_SHOWCOMPRESSION|XATTR_NOFOLLOW);
+    }
+    static int lremovexattr (const char *path, const char *name)
+    {
+        return removexattr(path, name, XATTR_SHOWCOMPRESSION|XATTR_NOFOLLOW);
+    }
+    static ssize_t llistxattr(const char *path, char *list, size_t size)
+    {
+        return listxattr(path, list, size, XATTR_SHOWCOMPRESSION|XATTR_NOFOLLOW);
+    }
+
+    #define fgetxattr(fd,n,v,s)     fgetxattr((fd),(n),(v),(s),0,XATTR_SHOWCOMPRESSION)
+    #define getxattr(p,n,v,s)       _getxattr((p),(n),(v),(s))
+    #define fsetxattr(fd,n,v,s,f)   fsetxattr((fd),(n),(v),(s),0,(f)|XATTR_SHOWCOMPRESSION)
+    #define setxattr(p,n,v,s,f)     setxattr((p),(n),(v),(s),0,(f)|XATTR_SHOWCOMPRESSION)
+    #define fremovexattr(fd,n)      fremovexattr((fd),(n),XATTR_SHOWCOMPRESSION)
+    #define removexattr(p,n)        removexattr((p),(n),XATTR_SHOWCOMPRESSION)
+    #define flistxattr(fd,l,s)      flistxattr((fd),(l),(s),XATTR_SHOWCOMPRESSION)
+    #define listxattr(p,l,s)        listxattr((p),(l),(s),XATTR_SHOWCOMPRESSION)
+#else
+    #define _getxattr getxattr
+#endif
+
 /*
  * Convert IRIX API components into Linux/XFS API components,
  * and vice-versa.
@@ -111,7 +145,7 @@ attr_get(const char *path, const char *attrname, char *attrvalue,
 	 int *valuelength, int flags)
 {
 	ssize_t (*get)(const char *, const char *, void *, size_t) =
-		flags & ATTR_DONTFOLLOW ? lgetxattr : getxattr;
+		flags & ATTR_DONTFOLLOW ? lgetxattr : _getxattr;
 	int c, compat;
 	char name[MAXNAMELEN+16];
 

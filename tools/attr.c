@@ -28,6 +28,9 @@
 #include <errno.h>
 #include <string.h>
 #include <locale.h>
+#ifdef __APPLE__
+#include <libgen.h>
+#endif
 
 #include <attr/attributes.h>
 

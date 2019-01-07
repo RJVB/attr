@@ -23,6 +23,7 @@ AC_PREFIX_DEFAULT(/usr)
 AM_INIT_AUTOMAKE([-Wall foreign 1.11 dist-xz subdir-objects])
 AM_SILENT_RULES([yes])
 
+AC_CANONICAL_HOST
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_USE_SYSTEM_EXTENSIONS
@@ -31,6 +32,18 @@ AC_TYPE_MODE_T
 AC_FUNC_ALLOCA
 AC_FUNC_GCC_VISIBILITY
 AC_SYS_LARGEFILE
+
+has_version_script=no
+
+# Detect the target system
+case "${host_os}" in
+    linux*)
+        has_version_script=yes
+        ;;
+esac
+
+# Pass the conditionals to automake
+AM_CONDITIONAL([HAS_VERSION_SCRIPT], [test "$has_version_script" = "yes"])
 
 AM_PROG_AR
 LT_INIT
@@ -50,8 +63,9 @@ AC_SUBST(LT_REVISION)
 
 AC_CONFIG_COMMANDS([include/attr],
 	[dnl
-	rm -rf include/attr
-	$as_ln_s "$ac_abs_top_srcdir/include" include/attr
+	mkdir -p include/attr
+	rm -f include/attr/*.h
+	$as_ln_s "$ac_abs_top_srcdir"/include/*.h include/attr
 	])
 AC_CONFIG_FILES([
 	libattr.pc

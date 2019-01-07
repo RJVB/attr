@@ -35,6 +35,26 @@
 #include "walk_tree.h"
 #include "misc.h"
 
+#ifdef __APPLE__
+    static ssize_t lgetxattr(const char *path, const char *name, void *value, size_t size)
+    {
+        return getxattr(path, name, value, size, 0, XATTR_SHOWCOMPRESSION|XATTR_NOFOLLOW);
+    }
+    static ssize_t _getxattr(const char *path, const char *name, void *value, size_t size)
+    {
+        return getxattr(path, name, value, size, 0, XATTR_SHOWCOMPRESSION);
+    }
+    static ssize_t llistxattr(const char *path, char *list, size_t size)
+    {
+        return listxattr(path, list, size, XATTR_SHOWCOMPRESSION|XATTR_NOFOLLOW);
+    }
+
+    #define fgetxattr(fd,n,v,s)     fgetxattr((fd),(n),(v),(s),0,XATTR_SHOWCOMPRESSION)
+    #define getxattr(p,n,v,s)       _getxattr((p),(n),(v),(s))
+    #define flistxattr(fd,l,s)      flistxattr((fd),(l),(s),XATTR_SHOWCOMPRESSION)
+    #define listxattr(p,l,s)        listxattr((p),(l),(s),XATTR_SHOWCOMPRESSION)
+#endif
+
 #define CMD_LINE_OPTIONS "n:de:m:hRLP"
 #define CMD_LINE_SPEC "[-hRLP] [-n name|-d] [-e en] [-m pattern] path..."
 
@@ -57,7 +77,11 @@ struct option long_options[] = {
 int walk_flags = WALK_TREE_DEREFERENCE;
 int opt_dump;  /* dump attribute values (or only list the names) */
 char *opt_name;  /* dump named attributes */
+#ifndef __APPLE__
 char *opt_name_pattern = "^user\\.";  /* include only matching names */
+#else
+char *opt_name_pattern = ".*";
+#endif
 char *opt_encoding;  /* encode values automatically (NULL), or as "text",
                         "hex", or "base64" */
 char opt_value_only;  /* dump the value only, without any decoration */
@@ -81,14 +105,20 @@ static const char *xquote(const char *str, const char *quote_chars)
 
 int do_getxattr(const char *path, const char *name, void *value, size_t size)
 {
-	return ((walk_flags & WALK_TREE_DEREFERENCE) ?
-		getxattr : lgetxattr)(path, name, value, size);
+	if (walk_flags & WALK_TREE_DEREFERENCE) {
+		return getxattr(path, name, value, size);
+	} else {
+		return lgetxattr(path, name, value, size);
+	}
 }
 
 int do_listxattr(const char *path, char *list, size_t size)
 {
-	return ((walk_flags & WALK_TREE_DEREFERENCE) ?
-		listxattr : llistxattr)(path, list, size);
+	if (walk_flags & WALK_TREE_DEREFERENCE) {
+		return listxattr(path, list, size);
+	} else {
+		return llistxattr(path, list, size);
+	}
 }
 
 const char *strerror_ea(int err)
@@ -279,7 +309,16 @@ int print_attribute(const char *path, const char *name, int *header_printed)
 	if (opt_value_only)
 		fwrite(value, length, 1, stdout);
 	else if (opt_dump) {
+#ifndef __APPLE__
 		const char *enc = encode(value, &length);
+#else
+        const char *enc;
+        if (strcmp(name, XATTR_RESOURCEFORK_NAME) != 0) {
+            enc = encode(value, &length);
+        } else {
+            enc = (length <= 256)? encode(value, &length) : "<resource fork too big>";
+        }
+#endif
 		
 		if (enc)
 			printf("%s=%s\n", xquote(name, "=\n\r"), enc);

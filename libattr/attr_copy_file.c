@@ -51,6 +51,25 @@
 # define my_free(ptr) free (ptr)
 #endif
 
+#ifdef __APPLE__
+    static ssize_t lgetxattr(const char *path, const char *name, void *value, size_t size)
+    {
+        return getxattr(path, name, value, size, 0, XATTR_SHOWCOMPRESSION|XATTR_NOFOLLOW);
+    }
+    static int lsetxattr (const char *path, const char *name, const void *value, size_t size, int flags)
+    {
+        return setxattr(path, name, value, size, 0, flags|XATTR_SHOWCOMPRESSION|XATTR_NOFOLLOW);
+    }
+    static int lremovexattr (const char *path, const char *name)
+    {
+        return removexattr(path, name, XATTR_SHOWCOMPRESSION|XATTR_NOFOLLOW);
+    }
+    static ssize_t llistxattr(const char *path, char *list, size_t size)
+    {
+        return listxattr(path, list, size, XATTR_SHOWCOMPRESSION|XATTR_NOFOLLOW);
+    }
+#endif
+
 /* Copy extended attributes from src_path to dst_path. If the file
    has an extended Access ACL (system.posix_acl_access) and that is
    copied successfully, the file mode permission bits are copied as

@@ -9,3 +9,8 @@
 #define HAVE_GETXATTR 1
 #define HAVE_LISTXATTR 1
 #define HAVE_SETXATTR 1
+#ifndef __APPLE__
+    #define HAVE_LGETXATTR 1
+    #define HAVE_LLISTXATTR 1
+    #define HAVE_LSETXATTR 1
+#endif

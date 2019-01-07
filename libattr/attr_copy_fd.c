@@ -51,6 +51,13 @@
 # define my_free(ptr) free (ptr)
 #endif
 
+#ifdef __APPLE__
+    #define fgetxattr(fd,n,v,s)     fgetxattr((fd),(n),(v),(s),0,XATTR_SHOWCOMPRESSION)
+    #define fsetxattr(fd,n,v,s,f)   fsetxattr((fd),(n),(v),(s),0,(f)|XATTR_SHOWCOMPRESSION)
+    #define fremovexattr(fd,n)      fremovexattr((fd),(n),XATTR_SHOWCOMPRESSION)
+    #define flistxattr(fd,l,s)      flistxattr((fd),(l),(s),XATTR_SHOWCOMPRESSION)
+#endif
+
 /* Copy extended attributes from src_path to dst_path. If the file
    has an extended Access ACL (system.posix_acl_access) and that is
    copied successfully, the file mode permission bits are copied as
@@ -136,7 +143,8 @@ attr_copy_fd(const char *src_path, int src_fd,
 			ret = -1;
 			continue;
 		}
-		if (fsetxattr (dst_fd, name, value, size, 0) != 0) {
+		if (fsetxattr (dst_fd, name, value, size, 0) != 0)
+        {
 			if (errno == ENOTSUP)
 				setxattr_ENOTSUP++;
 			else {

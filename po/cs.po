@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: attr 2.4.41\n"
 "Report-Msgid-Bugs-To: acl-devel@nongnu.org\n"
-"POT-Creation-Date: 2017-09-15 15:13+0200\n"
+"POT-Creation-Date: 2019-01-05 18:31+0100\n"
 "PO-Revision-Date: 2008-04-09 16:30+0200\n"
 "Last-Translator: Petr Pisar <petr.pisar@atlas.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
@@ -28,30 +28,30 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: libattr/attr_copy_fd.c:80 libattr/attr_copy_fd.c:95
-#: libattr/attr_copy_file.c:78 libattr/attr_copy_file.c:93
+#: libattr/attr_copy_fd.c:87 libattr/attr_copy_fd.c:102
+#: libattr/attr_copy_file.c:97 libattr/attr_copy_file.c:112
 #, c-format
 msgid "listing attributes of %s"
 msgstr "vypisuji atribut souboru %s"
 
-#: libattr/attr_copy_fd.c:115 libattr/attr_copy_fd.c:132
-#: libattr/attr_copy_file.c:113 libattr/attr_copy_file.c:130
+#: libattr/attr_copy_fd.c:122 libattr/attr_copy_fd.c:139
+#: libattr/attr_copy_file.c:132 libattr/attr_copy_file.c:149
 #, c-format
 msgid "getting attribute %s of %s"
 msgstr "získávám atribut %s souboru %s"
 
-#: libattr/attr_copy_fd.c:145 libattr/attr_copy_fd.c:164
-#: libattr/attr_copy_file.c:143 libattr/attr_copy_file.c:162
+#: libattr/attr_copy_fd.c:153 libattr/attr_copy_fd.c:172
+#: libattr/attr_copy_file.c:162 libattr/attr_copy_file.c:181
 #, c-format
 msgid "setting attributes for %s"
 msgstr "nastavuji atributy souboru %s"
 
-#: libattr/attr_copy_fd.c:152 libattr/attr_copy_file.c:150
+#: libattr/attr_copy_fd.c:160 libattr/attr_copy_file.c:169
 #, c-format
 msgid "setting attribute %s for %s"
 msgstr "nastavuji atribut %s souboru %s"
 
-#: tools/attr.c:49
+#: tools/attr.c:52
 #, c-format
 msgid ""
 "Usage: %s [-LRSq] -s attrname [-V attrvalue] pathname  # set value\n"
@@ -67,86 +67,86 @@ msgstr ""
 "  -s čte hodnotu ze standardního vstupu a -g ji vypisuje na standardní "
 "výstup.\n"
 
-#: tools/attr.c:87 tools/attr.c:104 tools/attr.c:113 tools/attr.c:122
+#: tools/attr.c:90 tools/attr.c:107 tools/attr.c:116 tools/attr.c:125
 #, c-format
 msgid "Only one of -s, -g, -r, or -l allowed\n"
 msgstr "Povolen je právě jeden z přepínačů -s, -g, -r nebo -l\n"
 
-#: tools/attr.c:95
+#: tools/attr.c:98 tools/attr.c:164
 #, c-format
 msgid "-V only allowed with -s\n"
 msgstr "-V je povoleno sej s -s\n"
 
-#: tools/attr.c:140
+#: tools/attr.c:143
 #, c-format
 msgid "Unrecognized option: %c\n"
 msgstr "Nerozpoznaný přepínač: %c\n"
 
-#: tools/attr.c:147
+#: tools/attr.c:150
 #, c-format
 msgid "A filename to operate on is required\n"
 msgstr "Jméno souboru, se kterým se bude pracovat, je vyžadováno.\n"
 
-#: tools/attr.c:175
+#: tools/attr.c:182
 #, c-format
 msgid "Could not set \"%s\" for %s\n"
 msgstr "Souboru %2$s nelze nastavit atribut „%1$s“\n"
 
-#: tools/attr.c:180
+#: tools/attr.c:187
 #, c-format
 msgid "Attribute \"%s\" set to a %d byte value for %s:\n"
 msgstr "Atributu „%1$s“ souboru %3$s nastavena %2$dbajtová hodnota:\n"
 
-#: tools/attr.c:198
+#: tools/attr.c:205
 #, c-format
 msgid "Could not get \"%s\" for %s\n"
 msgstr "Ze souboru %2$s nelze získat atribut „%1$s“\n"
 
-#: tools/attr.c:203
+#: tools/attr.c:210
 #, c-format
 msgid "Attribute \"%s\" had a %d byte value for %s:\n"
 msgstr "Atribut „%1$s“ souboru %3$s měl %2$dbajtovou hodnotu:\n"
 
-#: tools/attr.c:216
+#: tools/attr.c:223
 #, c-format
 msgid "Could not remove \"%s\" for %s\n"
 msgstr "Ze souboru %2$s nelze odstranit atribut „%1$s“\n"
 
-#: tools/attr.c:234
+#: tools/attr.c:241
 #, fuzzy, c-format
 msgid "Could not list %s\n"
 msgstr "Ze souboru %2$s nelze vypsat atribut „%1$s“\n"
 
-#: tools/attr.c:244
+#: tools/attr.c:251
 #, c-format
 msgid "Attribute \"%s\" has a %d byte value for %s\n"
 msgstr "Atribut „%1$s“ souboru %3$s má %2$dbajtovou hodnotu\n"
 
-#: tools/attr.c:256
+#: tools/attr.c:263
 #, c-format
 msgid "At least one of -s, -g, -r, or -l is required\n"
 msgstr "Alespoň jeden z přepínačů -s, -g, -r nebo -l je vyžadován\n"
 
-#: tools/getfattr.c:99 tools/setfattr.c:75
+#: tools/getfattr.c:129 tools/setfattr.c:91
 msgid "No such attribute"
 msgstr "Takový atribut neexistuje"
 
-#: tools/getfattr.c:260
+#: tools/getfattr.c:290
 #, c-format
 msgid "%s: Removing leading '/' from absolute path names\n"
 msgstr "%s: Odstraňuji úvodní „/“ z absolutní cesty\n"
 
-#: tools/getfattr.c:378
+#: tools/getfattr.c:417
 #, c-format
 msgid "%s %s -- get extended attributes\n"
 msgstr "%s %s – získá rozšířené atributy\n"
 
-#: tools/getfattr.c:380 tools/setfattr.c:181
+#: tools/getfattr.c:419 tools/setfattr.c:205
 #, c-format
 msgid "Usage: %s %s\n"
 msgstr "Použití: %s %s\n"
 
-#: tools/getfattr.c:383
+#: tools/getfattr.c:422
 #, c-format
 msgid ""
 "  -n, --name=name         get the named extended attribute value\n"
@@ -176,12 +176,12 @@ msgstr ""
 "      --version           vypíše verzi a skončí\n"
 "      --help              text této nápovědy\n"
 
-#: tools/getfattr.c:479
+#: tools/getfattr.c:518
 #, c-format
 msgid "%s: invalid regular expression \"%s\"\n"
 msgstr "%s: chybný regulární výraz „%s“\n"
 
-#: tools/getfattr.c:493
+#: tools/getfattr.c:532
 #, c-format
 msgid ""
 "Usage: %s %s\n"
@@ -190,28 +190,28 @@ msgstr ""
 "Použití: %s %s\n"
 "Pro více informací zkuste „%s --help“.\n"
 
-#: tools/setfattr.c:129
+#: tools/setfattr.c:153
 #, c-format
 msgid "%s: %s: No filename found in line %d, aborting\n"
 msgstr "%s: %s: Žádné jméno souboru nenalezeno na řádku %d, končím.\n"
 
-#: tools/setfattr.c:133
+#: tools/setfattr.c:157
 #, c-format
 msgid "%s: No filename found in line %d of standard input, aborting\n"
 msgstr ""
 "%s: Žádné jméno souboru nenalezeno na řádku %d standardního vstupu, končím\n"
 
-#: tools/setfattr.c:180
+#: tools/setfattr.c:204
 #, c-format
 msgid "%s %s -- set extended attributes\n"
 msgstr "%s %s – nastaví rozšířené atributy\n"
 
-#: tools/setfattr.c:182
+#: tools/setfattr.c:206
 #, c-format
 msgid "       %s %s\n"
 msgstr "       %s %s\n"
 
-#: tools/setfattr.c:184
+#: tools/setfattr.c:208
 #, fuzzy, c-format
 msgid ""
 "  -n, --name=name         set the value of the named extended attribute\n"
@@ -231,7 +231,7 @@ msgstr ""
 "      --version           vypíše verzi a skončí\n"
 "      --help              text této nápovědy\n"
 
-#: tools/setfattr.c:264
+#: tools/setfattr.c:288
 #, c-format
 msgid ""
 "Usage: %s %s\n"

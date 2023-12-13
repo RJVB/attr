@@ -82,8 +82,8 @@ char *opt_name_pattern = "^user\\.";  /* include only matching names */
 #else
 char *opt_name_pattern = ".*";
 #endif
-char *opt_encoding;  /* encode values automatically (NULL), or as "text",
-                        "hex", or "base64" */
+char *opt_encoding = NULL;  /* encode values automatically (NULL), or as "text",
+                        "raw", "hex", or "base64" */
 char opt_value_only;  /* dump the value only, without any decoration */
 int opt_strip_leading_slash = 1;  /* strip leading '/' from path names */
 
@@ -151,7 +151,7 @@ const char *encode(const char *value, size_t *size)
 {
 	static char *encoded;
 	static size_t encoded_size;
-	char *enc, *e;
+	char *enc = NULL, *e;
 	
 	if (opt_encoding == NULL) {
 		if (well_enough_printable(value, *size))
@@ -161,14 +161,19 @@ const char *encode(const char *value, size_t *size)
 	} else
 		enc = opt_encoding;
 
-	if (strcmp(enc, "text") == 0) {
+	if (strcmp(enc, "text") == 0 || strcmp(enc, "raw") == 0) {
 		size_t n, extra = 0;
+		char do_text = 1;
 
-		for (e=(char *)value; e < value + *size; e++) {
-			if (*e == '\0' || *e == '\n' || *e == '\r')
-				extra += 4;
-			else if (*e == '\\' || *e == '"')
-				extra++;
+        if (strcmp(enc, "text") == 0) {
+			for (e=(char *)value; e < value + *size; e++) {
+				if (*e == '\0' || *e == '\n' || *e == '\r')
+					extra += 4;
+				else if (*e == '\\' || *e == '"')
+					extra++;
+			}
+		} else {
+			do_text = 0;
 		}
 		if (high_water_alloc((void **)&encoded, &encoded_size,
 				     *size + extra + 3)) {
@@ -177,23 +182,27 @@ const char *encode(const char *value, size_t *size)
 			return NULL;
 		}
 		e = encoded;
-		*e++='"';
+		*e++= do_text ? '"' : '<';
 		for (n = 0; n < *size; n++, value++) {
-			if (*value == '\0' && n + 1 == *size)
-				break;
-			if (*value == '\0' || *value == '\n' || *value == '\r') {
-				*e++ = '\\';
-				*e++ = '0' + ((unsigned char)*value >> 6);
-				*e++ = '0' + (((unsigned char)*value & 070) >> 3);
-				*e++ = '0' + ((unsigned char)*value & 07);
-			} else if (*value == '\\' || *value == '"') {
-				*e++ = '\\';
-				*e++ = *value;
+			if (do_text) {
+				if (*value == '\0' && n + 1 == *size)
+					break;
+				if (*value == '\0' || *value == '\n' || *value == '\r') {
+					*e++ = '\\';
+					*e++ = '0' + ((unsigned char)*value >> 6);
+					*e++ = '0' + (((unsigned char)*value & 070) >> 3);
+					*e++ = '0' + ((unsigned char)*value & 07);
+				} else if (*value == '\\' || *value == '"') {
+					*e++ = '\\';
+					*e++ = *value;
+				} else {
+					*e++ = *value;
+				}
 			} else {
 				*e++ = *value;
 			}
 		}
-		*e++ = '"';
+		*e++ = do_text ? '"' : '>';
 		*e = '\0';
 		*size = (e - encoded);
 	} else if (strcmp(enc, "hex") == 0) {
@@ -265,7 +274,7 @@ int print_attribute(const char *path, const char *name, int *header_printed)
 		rval = do_getxattr(path, name, NULL, 0);
 		if (rval < 0) {
 			fprintf(stderr, "%s: ", xquote(path, "\n\r"));
-			fprintf(stderr, "%s: %s\n", xquote(name, "\n\r"),
+			fprintf(stderr, "error getting size of \"%s\" value: %s\n", xquote(name, "\n\r"),
 				strerror_ea(errno));
 			return 1;
 		}
@@ -316,12 +325,20 @@ int print_attribute(const char *path, const char *name, int *header_printed)
         if (strcmp(name, XATTR_RESOURCEFORK_NAME) != 0) {
             enc = encode(value, &length);
         } else {
-            enc = (length <= 256)? encode(value, &length) : "<resource fork too big>";
+//             enc = (length <= 256)? encode(value, &length) : "<resource fork too big>";
+            enc = encode(value, &length);
         }
 #endif
 		
-		if (enc)
-			printf("%s=%s\n", xquote(name, "=\n\r"), enc);
+		if (enc) {
+			if (!opt_encoding || strcmp(opt_encoding, "text") == 0) {
+				printf("%s=%s\n", xquote(name, "=\n\r"), enc);
+			} else {
+				printf("%s=", xquote(name, "=\n\r")); fflush(stdout);
+				write(fileno(stdout), enc, length); fflush(stdout);
+				fputc('\n', stdout);
+			}
+		}
 	} else
 		puts(xquote(name, "=\n\r"));
 
@@ -421,7 +438,7 @@ void help(void)
 	printf(_(
 "  -n, --name=name         get the named extended attribute value\n"
 "  -d, --dump              get all extended attribute values\n"
-"  -e, --encoding=...      encode values (as 'text', 'hex' or 'base64')\n"
+"  -e, --encoding=...      encode values (as 'text', 'raw', 'hex' or 'base64')\n"
 "      --match=pattern     only get attributes with names matching pattern\n"
 "      --only-values       print the bare values only\n"
 "  -h, --no-dereference    do not dereference symbolic links\n"
@@ -457,6 +474,7 @@ int main(int argc, char *argv[])
 
 			case 'e':  /* encoding */
 				if (strcmp(optarg, "text") != 0 &&
+				    strcmp(optarg, "raw") != 0 &&
 				    strcmp(optarg, "hex") != 0 &&
 				    strcmp(optarg, "base64") != 0)
 					goto synopsis;

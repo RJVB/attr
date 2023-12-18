@@ -283,7 +283,7 @@ int print_attribute(const char *path, const char *name, int *header_printed)
 			had_errors++;
 			return 1;
 		}
-		rval = do_getxattr(path, name, value, value_size);
+		rval = do_getxattr(path, name, value, rval);
 		if (rval < 0) {
 			fprintf(stderr, "%s: ", xquote(path, "\n\r"));
 			fprintf(stderr, "%s: %s\n", xquote(name, "\n\r"),
